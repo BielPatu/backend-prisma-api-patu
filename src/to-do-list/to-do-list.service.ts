@@ -2,13 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateToDoListDto } from './dto/create-to-do-list.dto';
 import { UpdateToDoListDto } from './dto/update-to-do-list.dto';
 import { PrismaService } from 'src/db/prisma.service';
-import { UserService } from 'src/user/user.service';
+import { UsersService } from 'src/user/user.service';
 
 @Injectable()
 export class ToDoListService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly userService: UserService,
+    private readonly userService: UsersService,
   ) {}
 
   async create(createToDoListDto: CreateToDoListDto) {

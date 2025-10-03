@@ -1,34 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    Put,
+    Request,
+    UseGuards,
+    UseInterceptors
+} from '@nestjs/common';
+import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 
+import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
+import { UsersService } from './user.service';
+import { UpdatePasswordDto } from './dto/create-user.dto';
+
+@ApiTags('user')
 @Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+    constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('access-key')
+    @UseInterceptors(ClassSerializerInterceptor)
+    @Get('me')
+    public async me(@Request() req) {
+        return new req.user;
+    }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('access-key')
+    @UseInterceptors(ClassSerializerInterceptor)
+    @Put('update/password')
+    public async updatePassword(@Request() req, @Body() updatePasswordDto: UpdatePasswordDto) {
+        await this.usersService.updatePassword(updatePasswordDto, req.user.id);
+        return {
+            message: "password_update_success"
+        };
+    }
+    @Get()
+    public async findAll() {
+      return this.usersService.findAll(); 
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
-  }
 }

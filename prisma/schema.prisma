@@ -14,11 +14,22 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
+  login     String
   name      String?
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   toDoLists ToDoList[]
+  surname   String?
+  role Role @default(CLIENT)
+
+  @@map("user")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+  ROOT
 }
 
 model ToDoList {
